@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
+import contactAction from '../../store/constact/contact-action';
 import styles from './ContactEditor.module.css';
 
 class ContactEditor extends Component {
@@ -17,10 +20,17 @@ class ContactEditor extends Component {
   handleSubmit = e => {
     e.preventDefault();
 
-    this.props.onSubmit(this.state.name, this.state.number);
-
-    this.setState({ name: '' });
-    this.setState({ number: '' });
+    if (
+      this.props.contacts.find(
+        contact => contact.name.toLowerCase() === this.state.name.toLowerCase(),
+      )
+    ) {
+      alert(`${this.state.name} is already in contacts.`);
+    } else {
+      this.props.onSubmit(this.state.name, this.state.number);
+      this.setState({ name: '' });
+      this.setState({ number: '' });
+    }
   };
 
   render() {
@@ -52,4 +62,12 @@ class ContactEditor extends Component {
   }
 }
 
-export default ContactEditor;
+const mapStateToProps = state => ({
+  contacts: state.contact.items,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onSubmit: (name, number) => dispatch(contactAction.addContact(name, number)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactEditor);
